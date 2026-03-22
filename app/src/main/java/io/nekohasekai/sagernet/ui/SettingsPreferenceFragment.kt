@@ -117,10 +117,9 @@ class SettingsPreferenceFragment : PreferenceFragmentCompat() {
             metedNetwork.remove()
         }
         isProxyApps = findPreference(Key.PROXY_APPS)!!
-        isProxyApps.setOnPreferenceChangeListener { _, newValue ->
+        isProxyApps.setOnPreferenceClickListener {
             startActivity(Intent(activity, AppManagerActivity::class.java))
-            if (newValue as Boolean) DataStore.dirty = true
-            newValue
+            true
         }
 
         val profileTrafficStatistics =
@@ -174,7 +173,10 @@ class SettingsPreferenceFragment : PreferenceFragmentCompat() {
         super.onResume()
 
         if (::isProxyApps.isInitialized) {
-            isProxyApps.isChecked = DataStore.proxyApps
+            val currentProxyApps = DataStore.proxyApps
+            val changed = isProxyApps.isChecked != currentProxyApps
+            isProxyApps.isChecked = currentProxyApps
+            if (changed) needReload()
         }
         if (::globalCustomConfig.isInitialized) {
             globalCustomConfig.notifyChanged()

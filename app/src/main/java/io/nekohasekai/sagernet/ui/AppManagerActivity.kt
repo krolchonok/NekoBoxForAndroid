@@ -215,11 +215,13 @@ class AppManagerActivity : ThemedActivity() {
             setHomeAsUpIndicator(R.drawable.ic_navigation_close)
         }
 
-        if (!DataStore.proxyApps) {
-            DataStore.proxyApps = true
-        }
-
-        binding.bypassGroup.check(if (DataStore.bypass) R.id.appProxyModeBypass else R.id.appProxyModeOn)
+        binding.bypassGroup.check(
+            when {
+                !DataStore.proxyApps -> R.id.appProxyModeDisable
+                DataStore.bypass -> R.id.appProxyModeBypass
+                else -> R.id.appProxyModeOn
+            }
+        )
         binding.bypassGroup.setOnCheckedChangeListener { _, checkedId ->
             when (checkedId) {
                 R.id.appProxyModeDisable -> {
@@ -227,8 +229,15 @@ class AppManagerActivity : ThemedActivity() {
                     finish()
                 }
 
-                R.id.appProxyModeOn -> DataStore.bypass = false
-                R.id.appProxyModeBypass -> DataStore.bypass = true
+                R.id.appProxyModeOn -> {
+                    DataStore.proxyApps = true
+                    DataStore.bypass = false
+                }
+
+                R.id.appProxyModeBypass -> {
+                    DataStore.proxyApps = true
+                    DataStore.bypass = true
+                }
             }
         }
         binding.autoSelectProxyApps.setOnClickListener { selectProxyApp() }
